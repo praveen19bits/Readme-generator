@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: llm-demo
+  ai:
+    chat:
+      client:
+        enabled: false
+    openai:
+      api-key: ${GROQ_OPENAI_API_KEY}
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: llama3-70b-8192
+          max-tokens: 4000
+    bedrock:
+      converse:
+        chat:
+          options:
+            model: anthropic.claude-3-sonnet-20240229-v1:0
+            max-tokens: 4000
+      aws:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+        region: ap-south-1
+
+file-patterns:
+  includePatterns:
+    - "**/*.md"
+    - "**/*.txt"
+    - "**/*.xml"
+    - "**/*.java"
+    - "**/*.jte"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.properties"
+    - "**/*.pom"
+  excludePatterns:
+    - ".mvn/**"
+    - ".idea/**"
+    - "target/**"
+    - ".gitignore"
+    - ".gitattributes"
+    - "mvnw"
+    - "mvnw.cmd"
