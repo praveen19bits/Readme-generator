@@ -2,11 +2,7 @@ package com.ai.readme_generator.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.bedrock.converse.BedrockProxyChatModel;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ai.readme_generator.ChatModels.AWSBedrockChatModel;
-import com.ai.readme_generator.ChatModels.ChatModel;
 import com.ai.readme_generator.ChatModels.OpenAIGroqChatModel;
 import com.ai.readme_generator.services.ContentGeneratorService;
 import com.ai.readme_generator.services.LocalRepoService;
