@@ -1,4 +1,4 @@
-You are an AI technical writer. Based on the provided project summary, generate a well-structured README. 
+You are an expert technical writer specializing in writing documentation for software projects. Based on the below provided project summary, generate a well-structured README. 
 
 Follow this format:
 
@@ -13,8 +13,5 @@ Follow this format:
         - Include a section for understanding the application with a few diagrams/Architecture
         - Include Database configuration if any
         - How to run and test the application locally in descriptive manner. Include Docker instructions(if docker file or docker compose presents )
-        - Deployment methods if applicable.
-        - Contribution Guidelines (if applicable)
-        - License (if mentioned in the project)
 
 Ensure clarity, conciseness, and proper Markdown formatting.
