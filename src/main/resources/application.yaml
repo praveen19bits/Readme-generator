@@ -30,9 +30,10 @@ spring:
 
 chat:
   model: openaigroq # openaigroq or awsbedrock
+
 generate:
   java:
-    summary: true  
+    summary: false  
 
 
 file-patterns:
@@ -54,8 +55,6 @@ file-patterns:
     - "mvnw"
     - "mvnw.cmd"
     - "src/test/**"
-    - "src/checkstyle/**"
-    - "src/main/scss/**"
     - ".devcontainer/**"
     - ".vscode/**"
     - ".github/**"
@@ -66,3 +65,4 @@ file-patterns:
     - "gradle/**"
     - "settings.gradle"
     - "editorconfig"
+  # src/main/java/com/ai/readme_generator/controllers/**,*.xml, **/*.xml, **/*.yaml, **/*.yml

@@ -1,4 +1,4 @@
-package com.ai.readme_generator.ChatModels;
+package com.ai.readme_generator.chatmodels;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;

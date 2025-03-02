@@ -4,16 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ai.readme_generator.ChatModels.AWSBedrockChatModel;
-import com.ai.readme_generator.ChatModels.OpenAIGroqChatModel;
+import com.ai.readme_generator.chatmodels.AWSBedrockChatModel;
+import com.ai.readme_generator.chatmodels.OpenAIGroqChatModel;
+import com.ai.readme_generator.config.FilePatternsConfig;
+import com.ai.readme_generator.dto.ReadMeRequest;
 import com.ai.readme_generator.services.ContentGeneratorService;
 import com.ai.readme_generator.services.LocalRepoService;
 
@@ -35,19 +36,47 @@ public class ReadMeGeneratorController{
 
     private final ContentGeneratorService contentGeneratorService;
 
+    private final FilePatternsConfig readmeConfig;
+
+    private final LocalRepoService localFileService;
+
     public ReadMeGeneratorController(LocalRepoService localFileService,
                                             ContentGeneratorService contentGeneratorService,
                                             AWSBedrockChatModel awsBedrockChatModel,
-                                            OpenAIGroqChatModel openAIGroqChatModel) {
+                                            OpenAIGroqChatModel openAIGroqChatModel,
+                                            FilePatternsConfig readmeConfig) {
+        this.localFileService = localFileService;
         this.contentGeneratorService = contentGeneratorService;
         this.awsBedrockChatModel = awsBedrockChatModel;
         this.openAIGroqChatModel = openAIGroqChatModel;
+        this.readmeConfig = readmeConfig;
     }
 
-    @PostMapping("/readme")
-    @ResponseBody
-    public ResponseEntity<String> generateReadme(@RequestParam(required = false) String localPath) {
+    @PostMapping("/local")
+    public ResponseEntity<String> generateReadmeForLocal(@RequestBody ReadMeRequest request) {
+        FilePatternsConfig finalPatterns = resolvePatterns(request.readConfig(), readmeConfig);
+        localFileService.setFilePatternsConfig(finalPatterns);
+        String readme = generateReadme(request.pathOrRepoUrl());
+        return ResponseEntity.ok(readme);
+    }
 
+    @PostMapping("/github")
+    public ResponseEntity<String> generateReadmeForGithub(@RequestBody ReadMeRequest request) {
+        return ResponseEntity.ok("OK");
+    }
+
+    private FilePatternsConfig resolvePatterns(FilePatternsConfig userPatterns, FilePatternsConfig defaultPatterns) {
+        if (userPatterns != null) {
+            // If user-provided config is missing exclude patterns, use default exclude patterns
+            if((userPatterns.excludePatterns() == null || userPatterns.excludePatterns().isEmpty())){
+                userPatterns = new FilePatternsConfig(userPatterns.includePatterns(), defaultPatterns.excludePatterns());
+            }
+            return userPatterns; // Use UI-provided config if available
+        }
+        return defaultPatterns; // Otherwise, fallback to application.yaml config
+    }
+
+    private String generateReadme(@RequestParam(required = false) String localPath) {
         try {
             String content = contentGeneratorService.generateContent(localPath);
             String generarteReadMeStr = "";
@@ -56,10 +85,10 @@ public class ReadMeGeneratorController{
             } else if ("awsbedrock".equalsIgnoreCase(chatModelType)) {
                 generarteReadMeStr = awsBedrockChatModel.generateSystemPromptResponse(readmePrompt.toString(), content);
             } 
-            return ResponseEntity.ok(generarteReadMeStr.toString());
+            return generarteReadMeStr;
         } catch (Exception e) {
             log.error("Error generating content", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating content: " + e.getMessage());
+            return "Error generating content: " + e.getMessage();
         }
     }
 }

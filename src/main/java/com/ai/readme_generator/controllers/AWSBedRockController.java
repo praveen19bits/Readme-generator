@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ai.readme_generator.ChatModels.AWSBedrockChatModel;
+import com.ai.readme_generator.chatmodels.AWSBedrockChatModel;
 
 @RestController
 public class AWSBedRockController {

@@ -17,19 +17,27 @@ import org.springframework.stereotype.Service;
 import com.ai.readme_generator.config.FilePatternsConfig;
 
 @Service
-
 public class LocalRepoService {
 
     private static final Logger log = LoggerFactory.getLogger(LocalRepoService.class);
 
-    @Value("${generate.java.summary:true}")
+    @Value("${generate.java.summary:false}")
     private boolean generateJavaSummary;
 
     private Path sourceDir;
-    private final List<PathMatcher> includeMatchers;
-    private final List<PathMatcher> excludeMatchers;
+    private List<PathMatcher> includeMatchers;
+    private List<PathMatcher> excludeMatchers;
 
-    public LocalRepoService(FilePatternsConfig config) {
+    // public LocalRepoService(FilePatternsConfig config) {
+    //     this.includeMatchers = config.includePatterns().stream()
+    //             .map(pattern -> FileSystems.getDefault().getPathMatcher("glob:" + normalizePattern(pattern)))
+    //             .collect(Collectors.toList());
+    //     this.excludeMatchers = config.excludePatterns().stream()
+    //             .map(pattern -> FileSystems.getDefault().getPathMatcher("glob:" + normalizePattern(pattern)))
+    //             .collect(Collectors.toList());
+    // }
+
+    public void setFilePatternsConfig(FilePatternsConfig config){
         this.includeMatchers = config.includePatterns().stream()
                 .map(pattern -> FileSystems.getDefault().getPathMatcher("glob:" + normalizePattern(pattern)))
                 .collect(Collectors.toList());
@@ -37,7 +45,7 @@ public class LocalRepoService {
                 .map(pattern -> FileSystems.getDefault().getPathMatcher("glob:" + normalizePattern(pattern)))
                 .collect(Collectors.toList());
     }
-
+    
     public String processLocalDirectory(String directoryPath) throws IOException {
         sourceDir = Paths.get(directoryPath).normalize().toAbsolutePath();
         if (!Files.exists(sourceDir) || !Files.isDirectory(sourceDir)) {
@@ -62,14 +70,27 @@ public class LocalRepoService {
         return contentBuilder.toString();
     }
 
+    /**
+     * Determines whether a given file should be included based on inclusion and exclusion patterns.
+     *
+     * @param filePath the path of the file to check
+     * @return true if the file should be included, false otherwise
+    */
     private boolean shouldIncludeFile(Path filePath) {
         String relativePath = normalizePath(sourceDir.relativize(filePath));
+        // Exclude the file if it matches any of the exclude patterns
         if (excludeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)))) {
             return false;
         }
+        // If no include patterns are specified, include all files
         if (includeMatchers.isEmpty()) {
             return true;
         }
+
+        if (includeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)))) {
+            System.out.println("Included File: " + relativePath);
+        }
+        // Include the file if it matches any of the include patterns
         return includeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)));
     }
 
