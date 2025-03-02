@@ -10,18 +10,28 @@ spring:
       client:
         enabled: false
     openai:
+      # api-key: ${OPENAI_API_KEY}   # Store in environment variables
+      # base-url: https://api.openai.com/v1
+      # chat:
+      #   options:
+      #     model: gpt-4.5-preview   # Use latest available model
+      #     temperature: 0.7      # Adjust for randomness
+      #     max-tokens: 4000      # Control response size
       api-key: ${GROQ_OPENAI_API_KEY}
       base-url: https://api.groq.com/openai
       chat:
         options:
           model: llama3-70b-8192
+          temperature: 0.7      # Adjust for randomness
           max-tokens: 4000
     bedrock:
       converse:
         chat:
           options:
-            model: anthropic.claude-3-sonnet-20240229-v1:0
+            model: anthropic.claude-3-sonnet-20240229-v1:0  
             max-tokens: 4000
+            temperature: 0.3
+            top_p: 0.9
       aws:
         access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_KEY}
@@ -29,7 +39,7 @@ spring:
 
 
 chat:
-  model: openaigroq # openaigroq or awsbedrock
+  model: awsbedrock # openaigroq or awsbedrock
 
 generate:
   java:

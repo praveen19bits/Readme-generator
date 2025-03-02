@@ -1,5 +1,9 @@
 package com.ai.readme_generator.controllers;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +28,7 @@ import com.ai.readme_generator.services.LocalRepoService;
 public class ReadMeGeneratorController{
     private static final Logger log = LoggerFactory.getLogger(ReadMeGeneratorController.class);
 
-    @Value("classpath:/prompts/readme.st")
+    @Value("classpath:/prompts/another.st")
     private Resource readmePrompt;
 
     @Value("${chat.model}")
@@ -79,6 +83,11 @@ public class ReadMeGeneratorController{
     private String generateReadme(@RequestParam(required = false) String localPath) {
         try {
             String content = contentGeneratorService.generateContent(localPath);
+            // Create the file if it doesn't exist and write the generated content to it
+            Path tempFile = Files.createTempFile("generated-readme-content", ".txt");
+            Files.write(tempFile, content.getBytes(StandardCharsets.UTF_8));
+            Path outputPath = tempFile;
+            log.info("Generated content written to: {}", outputPath.toAbsolutePath());
             String generarteReadMeStr = "";
             if ("openaigroq".equalsIgnoreCase(chatModelType)) {
                 generarteReadMeStr = openAIGroqChatModel.generateSystemPromptResponse(readmePrompt.toString(), content);
