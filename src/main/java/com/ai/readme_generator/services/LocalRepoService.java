@@ -1,6 +1,8 @@
 package com.ai.readme_generator.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.ai.readme_generator.config.FilePatternsConfig;
@@ -12,9 +14,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+
 public class LocalRepoService {
 
     private static final Logger log = LoggerFactory.getLogger(LocalRepoService.class);
+
+    @Value("${generate.java.summary:true}")
+    private boolean generateJavaSummary;
 
     private Path sourceDir;
     private final List<PathMatcher> includeMatchers;
@@ -39,7 +45,14 @@ public class LocalRepoService {
         try (Stream<Path> paths = Files.walk(sourceDir)) {
             paths.filter(Files::isRegularFile)
                     .filter(this::shouldIncludeFile)
-                    .forEach(file -> readFileContent(file, contentBuilder));
+                    .forEach(file -> {
+                        try {
+                            readFileContent(file, contentBuilder);
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    });
         }
 
         log.info("Local directory contents generated {}", contentBuilder.toString());
@@ -57,10 +70,19 @@ public class LocalRepoService {
         return includeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)));
     }
 
-    private void readFileContent(Path file, StringBuilder builder) {
+    private void readFileContent(Path file, StringBuilder builder) throws Exception {
         try {
+            // Generate summary for Java files if generate summary is enabled
+            // Check if file name ends with .java
+            String content = "";
+            if (generateJavaSummary && file.getFileName().toString().endsWith(".java")) {
+                content = CodeSummarizerService.summarizeJavaFile(file.toFile());
+            }
+            else{
+                content = Files.readString(file);
+            }
+            
             String relativePath = sourceDir.relativize(file).toString();
-            String content = Files.readString(file);
             builder.append("File: ").append(relativePath).append("\n\n")
                     .append(content).append("\n\n");
         } catch (IOException e) {

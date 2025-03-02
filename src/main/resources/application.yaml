@@ -1,4 +1,8 @@
 spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+
   application:
     name: llm-demo
   ai:
@@ -23,14 +27,21 @@ spring:
         secret-key: ${AWS_SECRET_KEY}
         region: ap-south-1
 
+
+chat:
+  model: openaigroq # openaigroq or awsbedrock
+generate:
+  java:
+    summary: true  
+
+
 file-patterns:
   includePatterns:
     - "**/*.md"
     - "**/*.txt"
     - "**/*.xml"
-    - "**/*.java"
-    - "**/*.jte"
     - "**/*.yaml"
+    #- "**/*.java"
     - "**/*.yml"
     - "**/*.properties"
     - "**/*.pom"
@@ -42,3 +53,16 @@ file-patterns:
     - ".gitattributes"
     - "mvnw"
     - "mvnw.cmd"
+    - "src/test/**"
+    - "src/checkstyle/**"
+    - "src/main/scss/**"
+    - ".devcontainer/**"
+    - ".vscode/**"
+    - ".github/**"
+    - ".gradle/**"
+    - "build.gradle"
+    - "gradlew"
+    - "gradlew.bat"
+    - "gradle/**"
+    - "settings.gradle"
+    - "editorconfig"
